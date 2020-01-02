@@ -6,13 +6,11 @@ defaultEntryPoints = ["https","http"]
 
 [entryPoints]
   [entryPoints.http]
-  address = ":{{ traefik_entrypoint_http_port }}"
-{% if traefik_entrypoint_http_redirect_to_https %}
+  address = ":80"
     [entryPoints.http.redirect]
-{% endif %}
     entryPoint = "https"
   [entryPoints.https]
-  address = ":{{ traefik_entrypoint_https_port }}"
+  address = ":443"
     [entryPoints.https.tls]
 {% if traefik_dashboard_enable %}
   [entryPoints.traefik]
@@ -30,23 +28,27 @@ defaultEntryPoints = ["https","http"]
 entryPoint = "traefik"
 {% endif %}
 
-[file]
-directory = "/conf.d"
-watch = true
-
-{% if traefik_docker_enable %}
 [docker]
 endpoint = "unix:///var/run/docker.sock"
-domain = "{{ traefik_docker_domain }}"
+domain = "{{ traefik_docker_domain | default(inventory_hostname) }}"
 watch = true
 exposedByDefault = {{ traefik_docker_expose_by_default | lower }}
+{% if traefik_use_swarm and traefik_swarm_mode %}
+swarmMode = true
 {% endif %}
 
 {% if traefik_acme_enable %}
 [acme]
 email = "{{ traefik_acme_email }}"
+{% if traefik_consul_enable %}
+storage = "traefik/acme/account"
+{% else %}
 storage = "acme.json"
+{% endif %}
 entryPoint = "https"
+{% if traefik_acme_use_staging_ca %}
+caServer = "https://acme-staging-v02.api.letsencrypt.org/directory"
+{% endif %}
 onHostRule = {{ traefik_acme_autocreate_from_host | lower }}
 [acme.httpChallenge]
 entryPoint = "http"

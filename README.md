@@ -15,7 +15,8 @@ Create a playbook (`traefik.yml`) from this role:
   hosts: <your host group or individual host>
   roles:
     - role: roles/traefik
-      traefik_docker_domain: "mydomain.org"
       traefik_acme_email: "user@mydomain.org"
       traefik_dashboard_basicauth_users: ["user:$apr1$somehash"]
 ```
+
+For a list of all options, see [defaults/main.yml](defaults/main.yml).

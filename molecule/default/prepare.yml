@@ -1,0 +1,31 @@
+---
+- name: Prepare
+  hosts: all
+  pre_tasks:
+    - name: Install gcc
+      package:
+        name:
+          - gcc
+          - python-devel
+  roles:
+    - role: geerlingguy.repo-epel
+    - role: geerlingguy.pip
+      vars:
+        pip_install_packages:
+          - name: pip
+            version: 19.3.1
+    - role: geerlingguy.pip
+      vars:
+        pip_install_packages:
+          - name: docker
+          - name: docker-compose
+    - role: geerlingguy.docker
+  tasks:
+    - name: Init swarm
+      command: docker swarm init
+  vars:
+    docker_package: "docker-{{ docker_edition }}"
+    docker_package_version: "17.03.2.ce-1.el7.centos"
+    docker_hosts:
+      - "tcp://0.0.0.0:2376"
+      - "unix:///var/run/docker.sock"
